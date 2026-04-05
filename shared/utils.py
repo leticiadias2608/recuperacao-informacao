@@ -1,4 +1,14 @@
 import random
+###------------CÁLCULO DO ni------------###
+def ni_calculation(termo, conteudo_tokens):
+    ni = 0
+    for doc in conteudo_tokens:
+        for token in doc:
+            if token == termo:
+                ni += 1
+                break
+    return ni
+
 ###------------CRIAÇÃO DO VOCABULÁRIO------------###
 def criar_vocabulario(conteudo_tokens):
     vocabulario = set()
