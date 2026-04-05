@@ -2,7 +2,7 @@
 
 import numpy as np
 
-### SIMILARIDADE COSSENO###
+### SIMILARIDADE COSSENO ###
 def similaridade_cos(vet1, vet2):
     prod_esc = np.dot(vet1, vet2) #produto escalar entre vet1 e vet2
     
