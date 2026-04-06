@@ -10,6 +10,9 @@ def similaridade_cos(vet1, vet2):
     norma_vet1 = np.linalg.norm(vet1)
     norma_vet2 = np.linalg.norm(vet2)
 
+    if norma_vet1 == 0 or norma_vet2 == 0:  # evita divisão por zero
+        return 0.0
+
     similaridade = prod_esc / (norma_vet1 * norma_vet2)
     #print(similaridade)
     return similaridade

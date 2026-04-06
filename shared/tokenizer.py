@@ -5,7 +5,7 @@ import re
 def tokenize(lista_documentos):
     conteudo_tokens = []
 
-    for document in lista_documentos[:2]:
+    for document in lista_documentos:
         conteudo = document['content']
         
         # remove caracteres especiais
