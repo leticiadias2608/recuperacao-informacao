@@ -20,16 +20,18 @@ def similaridade_cos(vet1, vet2):
 
 ###------------FUNÇÕES DE RANQUEAMENTO------------###
 
-def ranqueamento(query, vetores_tf, documentos):
+def ranqueamento(query, vetores_tf, documentos): # retorna os 30 primeiro documentos mais similares
     similaridades = [] # lista de similaridades
+    indices = []
 
     for i, documento in enumerate(vetores_tf):
         similaridades.append(similaridade_cos(query, documento))
-    pares = list(zip(similaridades, documentos)) # listas com os pares
+        indices.append(i+1) # o documento da posição i é o documento de nome i+1
+    pares = list(zip(similaridades, indices)) # listas com os pares (similaridade indice_doc)
     pares_ranqueados = sorted(pares, key=lambda x: x[0], reverse=True)
 
     # Ranqueia documentos
-    ranked_list = [doc for sim, doc in pares_ranqueados] 
+    ranked_list = [doc_id for sim, doc_id in pares_ranqueados] # a lista possui os índices dos documentos
 
     #print(ranked_list)
-    return ranked_list
+    return ranked_list[:30] 
