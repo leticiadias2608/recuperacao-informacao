@@ -13,14 +13,13 @@ def ni_calculation(termo, conteudo_tokens):
     return ni
 
 ###------------CRIAÇÃO DO VOCABULÁRIO------------###
+# utils.py — criar_vocabulario retorna list, não set
 def criar_vocabulario(conteudo_tokens):
     vocabulario = set()
     for conteudo in conteudo_tokens:
         for token in conteudo:
-            #print(document['content'])
             vocabulario.add(token)
-    #print(vocabulario)
-    return vocabulario
+    return list(vocabulario)  # CORRIGIDO: list para indexação consistente
 
 ###------------CRIAÇÃO DAS BUSCAS------------###
 
@@ -28,8 +27,9 @@ def criar_vocabulario(conteudo_tokens):
 def get_sample_documents(vetores_tf, lista_documentos):
     conteudos = []
     for conteudo in lista_documentos:
-        conteudos.append(lista_documentos['content'])
-
+        conteudos.append(conteudo['content'])
+        
+    random.seed(42)
     doc_queries = []
     query_txt = []
     doc_ids = random.sample(range(len(vetores_tf)), k=50)

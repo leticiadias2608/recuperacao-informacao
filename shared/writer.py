@@ -23,6 +23,7 @@ OUTPUT_DIR = "results"
         f.write(linha_arquivo) """
 
 def write_numeric_file(id_consulta, ranking, nome_arquivo):
+    os.makedirs(OUTPUT_DIR, exist_ok=True)  # ADICIONAR ESSA LINHA
     docs_formatados = []
     path = os.path.join(OUTPUT_DIR, nome_arquivo)
     
@@ -38,21 +39,22 @@ def write_numeric_file(id_consulta, ranking, nome_arquivo):
     with open(path, 'a', encoding='utf-8') as f:
         f.write(linha_arquivo)
 
-def write_textual_file(id_consulta, queries_txt, ranking, conteudos, nome_arquivo):
+def write_textual_file(id_consulta, queries_txt, ranking, lista_documentos, nome_arquivo):
+    os.makedirs(OUTPUT_DIR, exist_ok=True)
     path = os.path.join(OUTPUT_DIR, nome_arquivo)
-    # pega os itens do ranking 
 
-    docs_formatados = []
+    TRECHO = 100
     conteudo_query = queries_txt[id_consulta]
+    # exibe só trecho da consulta se for texto longo (doc query), ou os termos diretamente
+    if isinstance(conteudo_query, list):
+        trecho_query = ' '.join(conteudo_query)
+    else:
+        trecho_query = conteudo_query[:TRECHO]
 
-    for doc_id in ranking:
-        conteudo_ranking = conteudos[doc_id]
-        trecho_ranking = conteudo_ranking[:100]
-        
-        docs_formatados.append(f"{trecho_ranking}")
-    
-    linha_arquivo = f"{conteudo_query} {docs_formatados}\n"
+    linhas = [f'"{trecho_query}"']
+    for rank, doc_id in enumerate(ranking, start=1):
+        conteudo_doc = lista_documentos[doc_id - 1]['content']  # CORRIGIDO: doc_id é 1-based
+        linhas.append(f'{rank} "{conteudo_doc[:TRECHO]}"')
 
-        # escreve linha por linha a cada iteração do loop
     with open(path, 'a', encoding='utf-8') as f:
-        f.write(linha_arquivo)
+        f.write('\n'.join(linhas) + '\n\n')
