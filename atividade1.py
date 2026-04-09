@@ -29,15 +29,15 @@ def main():
     term_queries = utils.get_term_queries() # 10 consultas por termos
 
     # Versão 1 (TF)
-    term_queries_v1 = [weighting.vetorizacao_tf(t, vocabulario) for t in term_queries]  # CORRIGIDO: vetoriza cada query separadamente
-    doc_queries_tf, query_txt_v1 = utils.get_sample_documents(vetores_tf, lista_documentos)
-    queries_weights_v1 = utils.unify_queries_weights(doc_queries_tf, term_queries_v1)
+    term_queries_v1 = [weighting.vetorizacao_tf(t, vocabulario) for t in term_queries] # vetoriza cada query separadamente
+    doc_queries_tf, query_txt_v1 = utils.get_sample_documents(vetores_tf, lista_documentos) # 50 documentos aleatórios
+    queries_weights_v1 = utils.unify_queries_weights(doc_queries_tf, term_queries_v1) # vetor com todas as 60 consultas
     queries_txt_v1 = utils.unify_queries_txt(query_txt_v1, term_queries)
 
     # Versão 2 (TF-IDF)
-    term_queries_v2 = [weighting.vetorizacao_tf_idf(t, vocabulario, vetor_ni, N) for t in term_queries]  # CORRIGIDO
-    doc_queries_tf_idf, query_txt_v2 = utils.get_sample_documents(vetores_tf_idf, lista_documentos)
-    queries_weights_v2 = utils.unify_queries_weights(doc_queries_tf_idf, term_queries_v2)
+    term_queries_v2 = [weighting.vetorizacao_tf_idf(t, vocabulario, vetor_ni, N) for t in term_queries]  # vetoriza cada query separadamente
+    doc_queries_tf_idf, query_txt_v2 = utils.get_sample_documents(vetores_tf_idf, lista_documentos) # 50 documentos aleatórios
+    queries_weights_v2 = utils.unify_queries_weights(doc_queries_tf_idf, term_queries_v2) # vetor com todas as 60 consultas
     queries_txt_v2 = utils.unify_queries_txt(query_txt_v2, term_queries)
 
     # ------- Fazer o ranqueamento de cada consulta (retorna 30 mais similares) ------- #
@@ -57,13 +57,13 @@ def main():
     # Versão 1 (TF)
     # Versão 1 (TF)
     for i, query in enumerate(queries_weights_v1):
-        writer.write_numeric_file(i + 1, results_v1[i], "resultados_numericos_v1.txt")         # CORRIGIDO: results_v1[i]
-        writer.write_textual_file(i, queries_txt_v1, results_v1[i], lista_documentos, "resultados_textuais_v1.txt")  # CORRIGIDO: results_v1[i]
+        writer.write_numeric_file(i + 1, results_v1[i], "resultados_numericos_v1.txt")         
+        writer.write_textual_file(i, queries_txt_v1, results_v1[i], lista_documentos, "resultados_textuais_v1.txt") 
 
     # Versão 2 (TF-IDF)
     for i, query in enumerate(queries_weights_v2):
-        writer.write_numeric_file(i + 1, results_v2[i], "resultados_numericos_v2.txt")         # CORRIGIDO
-        writer.write_textual_file(i, queries_txt_v2, results_v2[i], lista_documentos, "resultados_textuais_v2.txt")  # CORRIGIDO
+        writer.write_numeric_file(i + 1, results_v2[i], "resultados_numericos_v2.txt")       
+        writer.write_textual_file(i, queries_txt_v2, results_v2[i], lista_documentos, "resultados_textuais_v2.txt") 
 
 if __name__ == "__main__":
     main()

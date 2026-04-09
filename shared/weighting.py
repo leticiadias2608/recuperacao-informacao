@@ -3,7 +3,7 @@ import math
 
 ### VETORIZAÇÃO ###
 def vetorizacao_tf(conteudo, vocabulario):
-    vocab_idx = {termo: i for i, termo in enumerate(vocabulario)}  # dict uma vez só
+    vocab_idx = {termo: i for i, termo in enumerate(vocabulario)}  # dicionário na forma {termo: i}
     vetor_tf = [0] * len(vocabulario)
     for termo_conteudo in conteudo:
         if termo_conteudo in vocab_idx:

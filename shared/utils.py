@@ -13,13 +13,12 @@ def ni_calculation(termo, conteudo_tokens):
     return ni
 
 ###------------CRIAÇÃO DO VOCABULÁRIO------------###
-# utils.py — criar_vocabulario retorna list, não set
 def criar_vocabulario(conteudo_tokens):
     vocabulario = set()
     for conteudo in conteudo_tokens:
         for token in conteudo:
             vocabulario.add(token)
-    return list(vocabulario)  # CORRIGIDO: list para indexação consistente
+    return list(vocabulario)  # retorna lista para manter a ordenação
 
 ###------------CRIAÇÃO DAS BUSCAS------------###
 

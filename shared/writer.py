@@ -23,7 +23,7 @@ OUTPUT_DIR = "results"
         f.write(linha_arquivo) """
 
 def write_numeric_file(id_consulta, ranking, nome_arquivo):
-    os.makedirs(OUTPUT_DIR, exist_ok=True)  # ADICIONAR ESSA LINHA
+    os.makedirs(OUTPUT_DIR, exist_ok=True)  
     docs_formatados = []
     path = os.path.join(OUTPUT_DIR, nome_arquivo)
     
@@ -53,7 +53,7 @@ def write_textual_file(id_consulta, queries_txt, ranking, lista_documentos, nome
 
     linhas = [f'"{trecho_query}"']
     for rank, doc_id in enumerate(ranking, start=1):
-        conteudo_doc = lista_documentos[doc_id - 1]['content']  # CORRIGIDO: doc_id é 1-based
+        conteudo_doc = lista_documentos[doc_id - 1]['content'] 
         linhas.append(f'{rank} "{conteudo_doc[:TRECHO]}"')
 
     with open(path, 'a', encoding='utf-8') as f:
