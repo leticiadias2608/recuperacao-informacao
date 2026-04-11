@@ -67,3 +67,23 @@ def unify_queries_txt(doc_queries_txt, term_queries_txt):
         doc_queries_txt.append(query)
 
     return doc_queries_txt
+
+### ATIVIDADE 2 ###
+
+def average_doclen(documents): # recebe conteudo_tokens
+    sum = 0 # é necessario?
+    for document in documents:
+        sum += len(document)
+    avg = sum/len(documents)
+    return avg
+
+def B_frequency(K, b, avg_doclen, d):
+    aux = ((1-b)+b*(len(d)/avg_doclen))
+    B_f = (K+1)*f/(K*aux+f)
+    return B_f
+
+def get_term_frequency(documento_tokens, vocabulario):
+    f = []
+    for k in vocabulario:
+        f.append(documento_tokens.count(k))
+    return f

@@ -44,12 +44,12 @@ def main():
     # Versão 1 (TF)
     results_v1 = []
     for query in queries_weights_v1:
-        results_v1.append(ranking.ranqueamento(query, vetores_tf, conteudo_tokens))
+        results_v1.append(ranking.ranqueamento_cos(query, vetores_tf))
 
     # Versão 2 (TF-IDF)
     results_v2 = []
     for query in queries_weights_v2:
-        results_v2.append(ranking.ranqueamento(query, vetores_tf_idf, conteudo_tokens))
+        results_v2.append(ranking.ranqueamento_cos(query, vetores_tf_idf))
 
     # ------- Gerar os arquivos de saída ------- #
     print("Escrevendo arquivos...\n")
@@ -57,13 +57,13 @@ def main():
     # Versão 1 (TF)
     # Versão 1 (TF)
     for i, query in enumerate(queries_weights_v1):
-        writer.write_numeric_file(i + 1, results_v1[i], "resultados_numericos_v1.txt")         
-        writer.write_textual_file(i, queries_txt_v1, results_v1[i], lista_documentos, "resultados_textuais_v1.txt") 
+        writer.write_numeric_file(i + 1, results_v1[i], "resultados_numericos_v1.txt", "results/atv_1")         
+        writer.write_textual_file(i, queries_txt_v1, results_v1[i], lista_documentos, "resultados_textuais_v1.txt", "results/atv_1") 
 
     # Versão 2 (TF-IDF)
     for i, query in enumerate(queries_weights_v2):
-        writer.write_numeric_file(i + 1, results_v2[i], "resultados_numericos_v2.txt")       
-        writer.write_textual_file(i, queries_txt_v2, results_v2[i], lista_documentos, "resultados_textuais_v2.txt") 
+        writer.write_numeric_file(i + 1, results_v2[i], "resultados_numericos_v2.txt", "results/atv_1")       
+        writer.write_textual_file(i, queries_txt_v2, results_v2[i], lista_documentos, "resultados_textuais_v2.txt", "results/atv_1") 
 
 if __name__ == "__main__":
     main()
