@@ -1,5 +1,4 @@
-from shared import reader, tokenizer, utils, weighting, writer, ranking
-from functools import partial
+from shared import reader, tokenizer, utils, writer, ranking
 
 def main():
     # Ler o arquivo e gerar lista de dados brutos
@@ -39,7 +38,7 @@ def main():
         nome_arquivo_num = f"resultados_numericos_{model}.txt"
         nome_arquivo_txt = f"resultados_textuais_{model}.txt"
         for i, query in enumerate(queries_tokens):
-            results.append(ranking.ranqueamento_prob(query, conteudo_tokens, ni_map, N, avg_dl, vocabulario, func_sim=model, K=1.5, b=0.75))
+            results.append(ranking.ranqueamento_prob(query, conteudo_tokens, ni_map, N, avg_dl, func_sim=model, K=1.5, b=0.75))
             # ------- Gerar os arquivos de saída ------- #
             writer.write_numeric_file(i + 1, results[i], nome_arquivo_num, "results/atv_2")
             writer.write_textual_file(i, queries_txt, results[i], lista_documentos, nome_arquivo_txt, "results/atv_2")

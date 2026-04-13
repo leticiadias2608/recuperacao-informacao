@@ -39,7 +39,6 @@ def ranqueamento_cos(query, vetores_tf): # retorna os 30 primeiro documentos mai
 
 ### ---------------------- ATIVIDADE 2 ------------------------ ###
 import math 
-from shared import weighting
 
 ###------------FUNÇÕES DE SIMILARIDADE------------###
 def sim_BM1(q, document, N, ni_map):
@@ -72,52 +71,37 @@ def sim_BM15(q, document, N, ni_map, K, f_vector):
             similaridade += parte_1 * parte_2
     return similaridade
 
-def sim_BM25(q, document, N, ni_map, B_f):
+def sim_BM25(q, document, N, ni_map, avg_doclen, K, b):
     similaridade = 0
     for k in q:
         if k in document:
             ni = ni_map.get(k, 0)
+            f = document.count(k)  # frequência do termo k no documento
+            B_f = utils.B_frequency(K, b, f, avg_doclen, document)
             similaridade += B_f * math.log((N - ni + 0.5) / (ni + 0.5))
     return similaridade
 
 ###------------FUNÇÕES DE RANQUEAMENTO------------###
-""" def ranqueamento_prob(query, vetores_tf, func_sim):
-    similaridades = [] # lista de similaridades
-    indices = []
 
-    for i, documento in enumerate(vetores_tf):
-        similaridades.append(func_sim(query, documento))
-        indices.append(i+1) # o documento da posição i é o documento de nome i+1
-    pares = list(zip(similaridades, indices)) # listas com os pares (similaridade indice_doc)
-    pares_ranqueados = sorted(pares, key=lambda x: x[0], reverse=True)
-
-    # Ranqueia documentos
-    ranked_list = [doc_id for sim, doc_id in pares_ranqueados] # a lista possui os índices dos documentos
-
-    #print(ranked_list)
-    return ranked_list[:30]  """
-
-def ranqueamento_prob(q, conteudo_tokens, ni_map, N, avg_doclen, vocabulario, func_sim, K, b):
+def ranqueamento_prob(q, conteudo_tokens, ni_map, N, avg_doclen, func_sim, K, b):
     """
     Calcula a similaridade da query q contra todos os documentos
-    usando a variação BM especificada e retorna os 30 mais similares.
-    variacao: "BM1" | "BM11" | "BM15" | "BM25"
+    usando a função de similaridade especificada e retorna os 30 mais similares.
+    func_sim: "BM1" | "BM11" | "BM15" | "BM25"
     """
     similaridades = []
  
     for i, document in enumerate(conteudo_tokens):
         if func_sim == "BM1":
             sim = sim_BM1(q, document, N, ni_map)
-        elif func_sim == "BM11":
-            f_vector = weighting.vetorizacao_tf(document, vocabulario)  # Criar os vetores de frequencia
+        elif func_sim == "BM11":    
+            f_vector = {termo: document.count(termo) for termo in set(document)}  # Criar os vetores de frequencia
             sim = sim_BM11(q, document, N, ni_map, avg_doclen, K, f_vector)
         elif func_sim == "BM15":
-            f_vector = weighting.vetorizacao_tf(document, vocabulario) # Criar os vetores de frequencia
+            f_vector = {termo: document.count(termo) for termo in set(document)} # Criar os vetores de frequencia
             sim = sim_BM15(q, document, N, ni_map, K, f_vector)
         elif func_sim == "BM25":
-            f_vector = weighting.vetorizacao_tf(document, vocabulario) # Criar os vetores de frequencia
-            B_f = utils.B_frequency(K, b, avg_doclen, document)
-            sim = sim_BM25(q, document, N, ni_map, B_f)
+            sim = sim_BM25(q, document, N, ni_map, avg_doclen, K, b)
         else:
             sim = 0.0
  

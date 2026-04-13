@@ -77,7 +77,7 @@ def average_doclen(documents): # recebe conteudo_tokens
     avg = sum/len(documents)
     return avg
 
-def B_frequency(K, b, avg_doclen, d):
+def B_frequency(K, b, f, avg_doclen, d):
     aux = ((1-b)+b*(len(d)/avg_doclen))
     B_f = (K+1)*f/(K*aux+f)
     return B_f
