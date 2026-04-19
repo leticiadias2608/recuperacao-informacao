@@ -29,11 +29,16 @@ def get_sample_documents(vetores_tf, lista_documentos):
         conteudos.append(conteudo['content'])
         
     random.seed(42)
-    doc_queries = []
+    doc_queries = {} # {category: sport, query: []}
     query_txt = []
     doc_ids = random.sample(range(len(vetores_tf)), k=50)
-    for id in doc_ids:
-        doc_queries.append(vetores_tf[id])
+    
+    for id, conteudo in doc_ids, lista_documentos:
+        categoria = conteudo["categoria"]
+        doc_queries[id] = {
+            "category": categoria,
+            "query": vetores_tf[id]
+        }
         query_txt.append(conteudos[id])
    
     #print(doc_queries)
@@ -47,18 +52,24 @@ def get_sample_documents(vetores_tf, lista_documentos):
 # sport - victory, champion, cup | match, player, coach
 # tech - microsoft, software, digital | system, technology, computer
 def get_term_queries():
-    term_queries = [["profit", "dollar", "economy"], ["market", "bank", "euro"], 
-                    ["oscar", "award", "film"],["comedy", "actor", "album"],
-                    ["election", "government", "tory"], ["debate", "minister", "political"],
-                    ["victory", "champion", "cup"], ["match", "player", "coach"],
-                    ["microsoft", "software", "digital"], ["system", "technology", "computer"]]
+    # term_queries no formato {category: query}
+    term_queries = {"business": ["profit", "dollar", "economy"], 
+                    "business": ["market", "bank", "euro"], 
+                    "entertainment": ["oscar", "award", "film"],
+                    "entertainment": ["comedy", "actor", "album"],
+                    "politics": ["election", "government", "tory"],
+                    "politics": ["debate", "minister", "political"],
+                    "sport": ["victory", "champion", "cup"],
+                    "sport": ["match", "player", "coach"],
+                    "tech": ["microsoft", "software", "digital"],
+                    "tech": ["system", "technology", "computer"]}
 
     return term_queries
 
 ### UNIR AS 60 BUSCAS (DOCUMENTOS E TERMOS) EM UMA ÚNICA LISTA ###
 def unify_queries_weights(doc_queries, term_queries):
     for query in term_queries:
-        doc_queries.append(query)
+        doc_queries.update({"category": query["category"], "query": query["query"]})
 
     return doc_queries
 
