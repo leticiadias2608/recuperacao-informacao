@@ -3,67 +3,72 @@ from shared import reader, tokenizer, utils, weighting, writer, ranking
 def main():
     # Ler o arquivo e gerar lista de dados brutos
     lista_documentos = reader.read_dataset_file()
-
+    
     # Gerar representação vetorial
     conteudo_tokens = tokenizer.tokenize(lista_documentos) # tokenizar os arquivos 
-    vocabulario = utils.criar_vocabulario(conteudo_tokens) # gerar o vocabulário
+    vocabulario = utils.build_vocabulary(conteudo_tokens) # construir o vocabulário
     
     N = len(conteudo_tokens) # Quantidade total de documentos do dataset
     
     # Calcula a quantidade de documentos em que o termo i aparece
-    print("cálculo do ni\n")
+    print("Cálculo do ni\n")
     vetor_ni = [0] * len(vocabulario)
     for i, termo in enumerate(vocabulario):
         vetor_ni[i] = utils.ni_calculation(termo, conteudo_tokens)
 
-    # Criar os vetores usando o vocabulário
-    print("criando vetores de pesos...\n")
+    # Gerar consultas e salvá-las no arquivo
+    print("Gerando consultas... \n")
+    term_queries_dict = utils.get_term_queries() # 10 consultas por termos
+    doc_queries_dict = utils.get_doc_queries(lista_documentos) # 50 documentos aleatórios
+    writer.write_queries_file(term_queries_dict, doc_queries_dict, conteudo_tokens) # Escreve txt com as queries
+
+    ##-------------------------------------------------------------------------##
+    ## ---------------- Criar os vetores usando o vocabulário ---------------- ##
+    ##-------------------------------------------------------------------------##
+    # Vetorização dos documentos
+    print("Criando vetores de pesos...\n")
     vetores_tf = [] # lista de vetores TF (v1)
+    vetores_idf = [] # lista de vetores IDF (v1)
     vetores_tf_idf = [] # lista de vetores (v2)
     for conteudo in conteudo_tokens:
-        vetores_tf.append(weighting.vetorizacao_tf(conteudo, vocabulario)) # v1
+        vetores_tf.append(weighting.vetorizacao_tf_log(conteudo, vocabulario)) # v1
+        vetores_idf.append(weighting.vetorizacao_idf(conteudo, vocabulario, vetor_ni, N)) # v1
         vetores_tf_idf.append(weighting.vetorizacao_tf_idf(conteudo, vocabulario, vetor_ni, N)) # v2
     
-    # ------- Gerar consultas (ou deixar as consultas salvas em um arquivo?) ------- #
-    print("Gerando consultas... \n")
-    term_queries = utils.get_term_queries() # 10 consultas por termos
+    # Vetorização das consultas
+    queries_dict = reader.read_queries_file() # Dicionário com todas as consultas no formato {categoria, conteudo_token}
 
-    # Versão 1 (TF)
-    term_queries_v1 = [weighting.vetorizacao_tf(t, vocabulario) for t in term_queries] # vetoriza cada query separadamente
-    doc_queries_tf, query_txt_v1 = utils.get_sample_documents(vetores_tf, lista_documentos) # 50 documentos aleatórios
-    queries_weights_v1 = utils.unify_queries_weights(doc_queries_tf, term_queries_v1) # vetor com todas as 60 consultas
-    queries_txt_v1 = utils.unify_queries_txt(query_txt_v1, term_queries)
+    queries_tf = []
+    queries_idf = []
+    queries_tf_idf = []
+    for query in queries_dict:
+        queries_tf.append(weighting.vetorizacao_tf_log(query["content"], vocabulario)) # v1
+        queries_idf.append(weighting.vetorizacao_idf(query["content"], vocabulario, vetor_ni, N)) # v1
+        queries_tf_idf.append(weighting.vetorizacao_tf_idf(query["content"], vocabulario, vetor_ni, N)) # v2
 
-    # Versão 2 (TF-IDF)
-    term_queries_v2 = [weighting.vetorizacao_tf_idf(t, vocabulario, vetor_ni, N) for t in term_queries]  # vetoriza cada query separadamente
-    doc_queries_tf_idf, query_txt_v2 = utils.get_sample_documents(vetores_tf_idf, lista_documentos) # 50 documentos aleatórios
-    queries_weights_v2 = utils.unify_queries_weights(doc_queries_tf_idf, term_queries_v2) # vetor com todas as 60 consultas
-    queries_txt_v2 = utils.unify_queries_txt(query_txt_v2, term_queries)
-
-    # ------- Fazer o ranqueamento de cada consulta (retorna 30 mais similares) ------- #
-    # Versão 1 (TF)
-    results_v1 = []
-    for query in queries_weights_v1:
-        results_v1.append(ranking.ranqueamento_cos(query, vetores_tf))
-
-    # Versão 2 (TF-IDF)
-    results_v2 = []
-    for query in queries_weights_v2:
-        results_v2.append(ranking.ranqueamento_cos(query, vetores_tf_idf))
-
-    # ------- Gerar os arquivos de saída ------- #
+    ##-----------------------------------------------------------------------------##
+    ## ---- Fazer o ranqueamento de cada consulta (retorna 30 mais similares) ---- ##
+    ##-----------------------------------------------------------------------------##
     print("Escrevendo arquivos...\n")
 
-    # Versão 1 (TF)
-    # Versão 1 (TF)
-    for i, query in enumerate(queries_weights_v1):
-        writer.write_numeric_file(i + 1, results_v1[i], "resultados_numericos_v1.txt", "results/atv_1")         
-        writer.write_textual_file(i, queries_txt_v1, results_v1[i], lista_documentos, "resultados_textuais_v1.txt", "results/atv_1") 
 
-    # Versão 2 (TF-IDF)
-    for i, query in enumerate(queries_weights_v2):
-        writer.write_numeric_file(i + 1, results_v2[i], "resultados_numericos_v2.txt", "results/atv_1")       
-        writer.write_textual_file(i, queries_txt_v2, results_v2[i], lista_documentos, "resultados_textuais_v2.txt", "results/atv_1") 
+    for i, query in enumerate(queries_tf):
+        results_tf = ranking.ranqueamento_cos(query, vetores_tf)
+        # Escrevendo arquivos de resultado
+        writer.write_numeric_file(i + 1, results_tf, "resultados_numericos_tf.txt", "results/atv_1")
+        writer.write_textual_file(i, queries_dict[i]["content"], results_tf[i], lista_documentos, "resultados_textuais_tf.txt", "results/atv_1") 
+    
+    for i, query in enumerate(queries_idf):
+        results_idf = ranking.ranqueamento_cos(query, vetores_idf)
+        # Escrevendo arquivos de resultado
+        writer.write_numeric_file(i + 1, results_idf, "resultados_numericos_idf.txt", "results/atv_1")
+        writer.write_textual_file(i, queries_dict[i]["content"], results_idf[i], lista_documentos, "resultados_textuais_idf.txt", "results/atv_1") 
+    
+    for i, query in enumerate(queries_tf_idf):
+        results_tf_idf = ranking.ranqueamento_cos(query, vetores_tf_idf)
+        # Escrevendo arquivos de resultado
+        writer.write_numeric_file(i + 1, results_tf_idf, "resultados_numericos_tf_idf.txt", "results/atv_1")
+        writer.write_textual_file(i, queries_dict[i]["content"], results_tf_idf[i], lista_documentos, "resultados_textuais_tf_idf.txt", "results/atv_1") 
 
 if __name__ == "__main__":
     main()

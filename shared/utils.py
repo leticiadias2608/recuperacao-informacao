@@ -1,7 +1,13 @@
-
-###------------FUNÇÕES GERAIS------------###
-
 import random
+
+###------------CRIAÇÃO DO VOCABULÁRIO------------###
+def build_vocabulary(conteudo_tokens):
+    vocabulario = set()
+    for conteudo in conteudo_tokens:
+        for token in conteudo:
+            vocabulario.add(token)
+    return list(vocabulario)  # retorna lista para manter a ordenação
+
 ###------------CÁLCULO DO ni------------###
 def ni_calculation(termo, conteudo_tokens):
     ni = 0
@@ -12,34 +18,9 @@ def ni_calculation(termo, conteudo_tokens):
                 break
     return ni
 
-###------------CRIAÇÃO DO VOCABULÁRIO------------###
-def criar_vocabulario(conteudo_tokens):
-    vocabulario = set()
-    for conteudo in conteudo_tokens:
-        for token in conteudo:
-            vocabulario.add(token)
-    return list(vocabulario)  # retorna lista para manter a ordenação
 
-###------------CRIAÇÃO DAS BUSCAS------------###
 
-### 50 DOCUMENTOS ALEATÓRIOS PARA BUSCA ###
-def get_sample_documents(vetores_tf, lista_documentos):
-    conteudos = []
-    for conteudo in lista_documentos:
-        conteudos.append(conteudo['content'])
-        
-    random.seed(42)
-    doc_queries = []
-    query_txt = []
-    doc_ids = random.sample(range(len(vetores_tf)), k=50)
-    for id in doc_ids:
-        doc_queries.append(vetores_tf[id])
-        query_txt.append(conteudos[id])
-   
-    #print(doc_queries)
-    return doc_queries, query_txt
-
-### BUSCA POR TERMOS (2 BUSCAS POR CATEGORIA) ###
+### BUSCA POR conteúdo (2 BUSCAS POR CATEGORIA) ###
 
 # business - profit, dollar, economy | market, bank, euro
 # entertainment - oscar, award, film | comedy, actor, album
@@ -47,28 +28,44 @@ def get_sample_documents(vetores_tf, lista_documentos):
 # sport - victory, champion, cup | match, player, coach
 # tech - microsoft, software, digital | system, technology, computer
 def get_term_queries():
-    term_queries = [["profit", "dollar", "economy"], ["market", "bank", "euro"], 
-                    ["oscar", "award", "film"],["comedy", "actor", "album"],
-                    ["election", "government", "tory"], ["debate", "minister", "political"],
-                    ["victory", "champion", "cup"], ["match", "player", "coach"],
-                    ["microsoft", "software", "digital"], ["system", "technology", "computer"]]
+    dict_queries = [
+    {"category": "business", "content": ["profit", "dollar", "economy"]},
+    {"category": "business", "content": ["market", "bank", "euro"]},
+    {"category": "entertainment", "content": ["oscar", "award", "film"]},
+    {"category": "entertainment", "content": ["comedy", "actor", "album"]},
+    {"category": "politics", "content": ["election", "government", "tory"]},
+    {"category": "politics", "content": ["debate", "minister", "political"]},
+    {"category": "sport", "content": ["victory", "champion", "cup"]},
+    {"category": "sport", "content": ["match", "player", "coach"]},
+    {"category": "tech", "content": ["microsoft", "software", "digital"]},
+    {"category": "tech", "content": ["system", "technology", "computer"]}
+]
+    return dict_queries
 
-    return term_queries
 
-### UNIR AS 60 BUSCAS (DOCUMENTOS E TERMOS) EM UMA ÚNICA LISTA ###
-def unify_queries_weights(doc_queries, term_queries):
-    for query in term_queries:
-        doc_queries.append(query)
+### BUSCA POR DOCUMENTOS (50 DOCUMENTOS) ###
+def get_doc_queries(lista_documentos):
+    random.seed(42)
 
-    return doc_queries
+    # Selecionar 50 documentos aleatórios
+    indices_sorteados = random.sample(range(len(lista_documentos)), 50)
+    lista_doc_queries = []
+    
+    for i in indices_sorteados:
+        doc = lista_documentos[i]
+        
+        # Dicionário da query com apenas categoria e id do documento
+        doc_simplificado = {
+            "category": doc["category"],
+            "id": i
+        }
+        
+        lista_doc_queries.append(doc_simplificado) # Acrescenta o dicionário na lista
+     
+    return lista_doc_queries
 
-def unify_queries_txt(doc_queries_txt, term_queries_txt):
-    for query in term_queries_txt:
-        doc_queries_txt.append(query)
 
-    return doc_queries_txt
-
-### ATIVIDADE 2 ###
+### ---------------------- ATIVIDADE 2 ------------------------ ###
 
 def average_doclen(documents): # recebe conteudo_tokens
     sum = 0 # é necessario?

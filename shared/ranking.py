@@ -56,7 +56,7 @@ def sim_BM11(q, document, N, ni_map, avg_doclen, K, f_vector):
             f = f_vector[k]
             ni = ni_map.get(k, 0)
             parte_1 = ((K+1)*f)/(((K*len(document))/(avg_doclen))+f)
-            parte_2 = math.log((N-ni+0.5)/ni+0.5)
+            parte_2 = math.log((N-ni+0.5)/(ni+0.5))
             similaridade += parte_1 * parte_2
     return similaridade
 
@@ -67,7 +67,7 @@ def sim_BM15(q, document, N, ni_map, K, f_vector):
             f = f_vector[k] 
             ni = ni_map.get(k, 0)
             parte_1 = (((K+1)*f)/(K+f))
-            parte_2 = math.log((N-ni+0.5)/ni+0.5)
+            parte_2 = math.log((N-ni+0.5)/(ni+0.5))
             similaridade += parte_1 * parte_2
     return similaridade
 

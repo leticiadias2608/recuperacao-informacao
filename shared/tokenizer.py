@@ -19,5 +19,4 @@ def tokenize(lista_documentos):
         palavras = [re.sub(r"'s$", "", p) for p in palavras]
         conteudo_tokens.append(palavras)
 
-    #print(conteudo_tokens)
     return conteudo_tokens
