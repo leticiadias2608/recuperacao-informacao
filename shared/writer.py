@@ -65,3 +65,24 @@ def write_textual_file(id_consulta, queries_txt, ranking, lista_documentos, nome
 
     with open(path, 'a', encoding='utf-8') as f:
         f.write('\n'.join(linhas) + '\n\n')
+
+
+### ---------------------- ATIVIDADE 3 ------------------------ ###
+import pandas as pd
+
+###------------CRIAÇÃO DAS TABELAS COM A COMPARAÇÃO DOS MODELOS------------###
+def write_results_tables(results_list, output_name, OUTPUT_DIR):
+    os.makedirs(OUTPUT_DIR, exist_ok=True)
+    path = os.path.join(OUTPUT_DIR, output_name)
+
+    df = pd.DataFrame(results_list)
+    
+    # Reorganiza para garantir que o Modelo seja a primeira coluna
+    if 'Modelo' in df.columns:
+        cols = ['Modelo'] + [c for c in df.columns if c != 'Modelo']
+        df = df[cols]
+
+    df.to_html(f"{path}.html", index=False, border=1)
+    df.to_latex(f"{path}.tex", index=False, float_format="%.4f")
+    
+    print(f"Tabelas geradas em: {OUTPUT_DIR}/ ({output_name}.html, .tex)")

@@ -107,12 +107,12 @@ def ndcg_calc(queries_dict, ranked_lists, lista_docs, n_docs):
         ranking_str = rank['ranking']
         # DCG real
         dcg = 0.0
-        for rank, doc_id_str in enumerate(ranking_str[:n_docs], start=1):
+        for rank_pos, doc_id_str in enumerate(ranking_str[:n_docs], start=1):
             doc_id = int(doc_id_str)
             doc = lista_docs[doc_id - 1]
             
             if doc['category'] == query['category']:
-                dcg += 1 / math.log2(rank + 1)
+                dcg += 1 / math.log2(rank_pos + 1)
 
         # DCG ideal - quantos relevantes existem até o rank k?
         total_relevant = 0
@@ -123,8 +123,8 @@ def ndcg_calc(queries_dict, ranked_lists, lista_docs, n_docs):
                 
         ideal_relevant_at_k = min(total_relevant, n_docs)
         idcg = 0.0
-        for rank in range(1, ideal_relevant_at_k + 1):
-            idcg += 1 / math.log2(rank + 1)
+        for rank_pos in range(1, ideal_relevant_at_k + 1):
+            idcg += 1 / math.log2(rank_pos + 1)
 
         if idcg == 0:
             ndcgs.append(0.0)

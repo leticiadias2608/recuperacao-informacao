@@ -55,20 +55,20 @@ def main():
     for i, query in enumerate(queries_tf):
         results_tf = ranking.ranqueamento_cos(query, vetores_tf)
         # Escrevendo arquivos de resultado
-        writer.write_numeric_file(i + 1, results_tf, "resultados_numericos_tf.txt", "results/atv_1")
-        writer.write_textual_file(i, queries_dict[i]["content"], results_tf[i], lista_documentos, "resultados_textuais_tf.txt", "results/atv_1") 
+        writer.write_numeric_file(i + 1, results_tf, "resultados_numericos_TF.txt", "results/atv_1")
+        writer.write_textual_file(i, queries_dict[i]["content"], results_tf, lista_documentos, "resultados_textuais_TF.txt", "results/atv_1") 
     
     for i, query in enumerate(queries_idf):
         results_idf = ranking.ranqueamento_cos(query, vetores_idf)
         # Escrevendo arquivos de resultado
-        writer.write_numeric_file(i + 1, results_idf, "resultados_numericos_idf.txt", "results/atv_1")
-        writer.write_textual_file(i, queries_dict[i]["content"], results_idf[i], lista_documentos, "resultados_textuais_idf.txt", "results/atv_1") 
+        writer.write_numeric_file(i + 1, results_idf, "resultados_numericos_IDF.txt", "results/atv_1")
+        writer.write_textual_file(i, queries_dict[i]["content"], results_idf, lista_documentos, "resultados_textuais_IDF.txt", "results/atv_1") 
     
     for i, query in enumerate(queries_tf_idf):
         results_tf_idf = ranking.ranqueamento_cos(query, vetores_tf_idf)
         # Escrevendo arquivos de resultado
-        writer.write_numeric_file(i + 1, results_tf_idf, "resultados_numericos_tf_idf.txt", "results/atv_1")
-        writer.write_textual_file(i, queries_dict[i]["content"], results_tf_idf[i], lista_documentos, "resultados_textuais_tf_idf.txt", "results/atv_1") 
+        writer.write_numeric_file(i + 1, results_tf_idf, "resultados_numericos_TF-IDF.txt", "results/atv_1")
+        writer.write_textual_file(i, queries_dict[i]["content"], results_tf_idf, lista_documentos, "resultados_textuais_TF-IDF.txt", "results/atv_1") 
 
 if __name__ == "__main__":
     main()
