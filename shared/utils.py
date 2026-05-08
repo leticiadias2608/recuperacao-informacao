@@ -84,3 +84,10 @@ def get_term_frequency(documento_tokens, vocabulario):
     for k in vocabulario:
         f.append(documento_tokens.count(k))
     return f
+
+def build_index(conteudo_tokens):
+    vocabulario = build_vocabulary(conteudo_tokens)
+    vetor_ni = [ni_calculation(t, conteudo_tokens) for t in vocabulario]
+    ni_map = {t: vetor_ni[i] for i, t in enumerate(vocabulario)}
+    avg_dl = average_doclen(conteudo_tokens)
+    return vocabulario, vetor_ni, ni_map, avg_dl
