@@ -15,7 +15,6 @@ def main():
         
     # ---- pré-processamento ---- #
     # Apenas stopwords
-    #tempo_inicial_stop = time.time()
     conteudo_sw    = tokenizer.remove_stop_words(conteudo_tokens)
     query_sw       = tokenizer.remove_stop_words(query_tokens_base)
     
@@ -88,5 +87,7 @@ def main():
         resultados_totais.append(metricas_bm25)
 
     print(resultados_totais)
+    writer.write_results_tables(resultados_totais, "comparacao_modelos", "results/atv_4")
+
 if __name__ == "__main__":
     main()
