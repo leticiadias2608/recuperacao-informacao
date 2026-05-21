@@ -36,7 +36,7 @@ def main():
         vetores_tf_idf.append(weighting.vetorizacao_tf_idf(conteudo, vocabulario, vetor_ni, N)) # v2
     
     # Vetorização das consultas
-    queries_dict = reader.read_queries_file() # Dicionário com todas as consultas no formato {categoria, conteudo_token}
+    queries_dict = reader.read_queries_file("data/queries.txt") # Dicionário com todas as consultas no formato {categoria, conteudo_token}
 
     queries_tf = []
     queries_idf = []

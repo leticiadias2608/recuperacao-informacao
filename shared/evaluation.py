@@ -148,3 +148,14 @@ def evaluate(queries_dict, ranked_lists, lista_documentos):
         "MAP":          map_calc(queries_dict, ranked_lists, lista_documentos),
         "NDCG@10":      ndcg_calc(queries_dict, ranked_lists, lista_documentos, 10),
     }
+
+def evaluate_2(queries_dict, ranked_lists, lista_documentos):
+    """
+    Calcula todas as métricas de avaliação e retorna um dicionário com os resultados.
+    """
+    return {
+        "Precision@10": precision_calc(queries_dict, ranked_lists, lista_documentos, 10),
+        "Precision@20": precision_calc(queries_dict, ranked_lists, lista_documentos, 20),
+        "Precision@30": precision_calc(queries_dict, ranked_lists, lista_documentos, 30),
+        "MAP":          map_calc(queries_dict, ranked_lists, lista_documentos)
+    }

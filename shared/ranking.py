@@ -20,7 +20,7 @@ def similaridade_cos(vet1, vet2):
 
 ###------------FUNÇÕES DE RANQUEAMENTO------------###
 
-def ranqueamento_cos(query, vetores_tf): # retorna os 30 primeiro documentos mais similares
+def ranqueamento_cos(query, vetores_tf, N): # retorna os 30 primeiro documentos mais similares
     similaridades = [] # lista de similaridades
     indices = []
 
@@ -34,7 +34,7 @@ def ranqueamento_cos(query, vetores_tf): # retorna os 30 primeiro documentos mai
     ranked_list = [doc_id for sim, doc_id in pares_ranqueados] # a lista possui os índices dos documentos
 
     #print(ranked_list)
-    return ranked_list[:30] 
+    return ranked_list[:N] 
 
 
 ### ---------------------- ATIVIDADE 2 ------------------------ ###

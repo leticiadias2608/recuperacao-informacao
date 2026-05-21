@@ -4,7 +4,7 @@ from shared import reader, tokenizer, utils, weighting, writer, ranking, evaluat
 def main():
     # Ler o arquivo e gerar lista de dados brutos
     lista_documentos = reader.read_dataset_file()
-    queries_dict     = reader.read_queries_file() 
+    queries_dict     = reader.read_queries_file("data/queries.txt") 
     
     # ---- sem pré-processamento ---- #
     conteudo_tokens = tokenizer.tokenize(lista_documentos) # tokenizar os arquivos 

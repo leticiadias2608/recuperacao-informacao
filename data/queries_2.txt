@@ -1,0 +1,10 @@
+business economy
+business market bank
+entertainment award
+entertainment actor album
+politics election
+politics political tory
+sport player
+sport match coach
+tech computer
+tech microsoft software

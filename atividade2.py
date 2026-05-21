@@ -20,7 +20,7 @@ def main():
     ni_map = {termo: vetor_ni[i] for i, termo in enumerate(vocabulario)}
 
     # Leitura das consultas
-    queries_dict = reader.read_queries_file() 
+    queries_dict = reader.read_queries_file("data/queries.txt") 
 
     ##---------------------------------------------------------------------------------##
     # ------- Fazer o ranqueamento de cada consulta (retorna 30 mais similares) ------- #

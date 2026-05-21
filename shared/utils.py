@@ -39,7 +39,7 @@ def get_term_queries():
     {"category": "sport", "content": ["match", "player", "coach"]},
     {"category": "tech", "content": ["microsoft", "software", "digital"]},
     {"category": "tech", "content": ["system", "technology", "computer"]}
-]
+    ]
     return dict_queries
 
 
@@ -91,3 +91,38 @@ def build_index(conteudo_tokens):
     ni_map = {t: vetor_ni[i] for i, t in enumerate(vocabulario)}
     avg_dl = average_doclen(conteudo_tokens)
     return vocabulario, vetor_ni, ni_map, avg_dl
+
+### ATIVIDADE 5
+
+### BUSCA POR conteúdo (2 BUSCAS POR CATEGORIA) ###
+
+# business - economy | market, bank
+# entertainment - award | actor, album
+# politics - election | political, tory
+# sport - player  | match, coach
+# tech - computer | microsoft, software 
+def get_term_queries_2():
+    dict_queries = [
+    {"category": "business", "content": ["economy"]},
+    {"category": "business", "content": ["market", "bank"]},
+    {"category": "entertainment", "content": ["award"]},
+    {"category": "entertainment", "content": ["actor", "album"]},
+    {"category": "politics", "content": ["election"]},
+    {"category": "politics", "content": ["political", "tory"]},
+    {"category": "sport", "content": ["player"]},
+    {"category": "sport", "content": ["match", "coach"]},
+    {"category": "tech", "content": ["computer"]},
+    {"category": "tech", "content": ["microsoft", "software"]}
+    ]
+    return dict_queries
+
+# Remove dos rankings os documentos que já foram vistos em iterações anteriores.
+def filter_seen_docs(ranked_lists_iter, docs_vistos):
+    filtered = []
+    for rank in ranked_lists_iter:
+        ranking_filtrado = [doc for doc in rank["ranking"] if doc not in docs_vistos]
+        filtered.append({
+            "query": rank["query"],
+            "ranking": ranking_filtrado
+        })
+    return filtered

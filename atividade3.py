@@ -5,7 +5,7 @@ def main():
     lista_documentos = reader.read_dataset_file()
     
     # Leitura das consultas
-    queries_dict = reader.read_queries_file() 
+    queries_dict = reader.read_queries_file("data/queries.txt") 
     
     resultados = []
 

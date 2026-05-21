@@ -20,8 +20,7 @@ def read_dataset_file():
         return lista_documentos
 
 ### LEITURA DO ARQUIVO DE CONSULTAS ###
-def read_queries_file():
-    dataset_path = "data/queries.txt" # caminho para o dataset
+def read_queries_file(dataset_path):
 
     with open(dataset_path, 'r', encoding='utf-8') as arquivo:
         linhas = arquivo.readlines()
@@ -68,3 +67,32 @@ def read_rankeds_file(dataset_path):
             })
         return ranked_lists
     
+def read_rankeds_file_2(dataset_path):
+    with open(dataset_path, 'r', encoding='utf-8') as arquivo:
+        linhas = arquivo.readlines()
+
+    ranked_lists = {}  # dicionário: {iteracao: [lista de ranks]}
+    iteracao_atual = None
+
+    for linha in linhas:
+        stripped = linha.strip()
+
+        if not stripped:
+            continue
+
+        if stripped.endswith(":") and stripped[:-1].isdigit():
+            iteracao_atual = int(stripped[:-1])
+            if iteracao_atual not in ranked_lists:
+                ranked_lists[iteracao_atual] = []  # inicializa a sublista da iteração
+            continue
+
+        if iteracao_atual is not None:
+            palavras = stripped.split(' ')
+            query_lida = palavras[0]
+            ranking_lido = palavras[1:]
+            ranked_lists[iteracao_atual].append({
+                "query": query_lida,
+                "ranking": ranking_lido
+            })
+
+    return ranked_lists
