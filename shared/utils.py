@@ -92,7 +92,7 @@ def build_index(conteudo_tokens):
     avg_dl = average_doclen(conteudo_tokens)
     return vocabulario, vetor_ni, ni_map, avg_dl
 
-### ATIVIDADE 5
+### ---------------------- ATIVIDADE 5 ------------------------ ###
 
 ### BUSCA POR conteúdo (2 BUSCAS POR CATEGORIA) ###
 
@@ -101,7 +101,7 @@ def build_index(conteudo_tokens):
 # politics - election | political, tory
 # sport - player  | match, coach
 # tech - computer | microsoft, software 
-def get_term_queries_2():
+""" def get_term_queries_2():
     dict_queries = [
     {"category": "business", "content": ["economy"]},
     {"category": "business", "content": ["market", "bank"]},
@@ -113,6 +113,45 @@ def get_term_queries_2():
     {"category": "sport", "content": ["match", "coach"]},
     {"category": "tech", "content": ["computer"]},
     {"category": "tech", "content": ["microsoft", "software"]}
+    ]
+    return dict_queries """
+
+""" def get_term_queries_2():
+    dict_queries = [
+    {"category": "business", "content": ["market"]},
+    {"category": "business", "content": ["firm", "chief"]},
+    {"category": "entertainment", "content": ["music"]},
+    {"category": "entertainment", "content": ["star", "show"]},
+    {"category": "politics", "content": ["government"]},
+    {"category": "politics", "content": ["plans", "general"]},
+    {"category": "sport", "content": ["game"]},
+    {"category": "sport", "content": ["play", "final"]},
+    {"category": "tech", "content": ["service"]},
+    {"category": "tech", "content": ["internet", "using"]},
+    ]
+    return dict_queries """
+
+def get_term_queries_2():
+    dict_queries = [
+    # business: 'world' e 'down' — aparecem em todas as categorias igualmente
+    {"category": "business", "content": ["world"]},
+    {"category": "business", "content": ["down", "much"]},
+
+    # entertainment: 'number' e 'four' — genéricos, sem vínculo claro
+    {"category": "entertainment", "content": ["number"]},
+    {"category": "entertainment", "content": ["four", "five"]},
+
+    # politics: 'added' e 'next' — verbos/adjetivos completamente genéricos
+    {"category": "politics", "content": ["added"]},
+    {"category": "politics", "content": ["next", "week"]},
+
+    # sport: 'since' e 'still' — praticamente aleatórios entre categorias
+    {"category": "sport", "content": ["since"]},
+    {"category": "sport", "content": ["still", "should"]},
+
+    # tech: 'made' e 'take' — os mais distribuídos do dataset
+    {"category": "tech", "content": ["made"]},
+    {"category": "tech", "content": ["take", "next"]},
     ]
     return dict_queries
 
