@@ -25,7 +25,6 @@ def distancia_euclidiana(vet1, vet2):
     vetor_sqr = np.square(vetor_sub)
     sum = np.sum(vetor_sqr)
     similaridade = np.sqrt(sum)
-    print("similaridade: ", similaridade)
     return similaridade
 
 ###------------FUNÇÕES DE RANQUEAMENTO------------###
@@ -50,13 +49,13 @@ def ranqueamento_euclid(query, features):
     similaridades = [] # lista de similaridades
     indices = []
 
-    for i, documento in enumerate(features):
-        similaridades.append(similaridade_cos(query, documento))
+    for i, imagem in enumerate(features):
+        similaridades.append(distancia_euclidiana(query, imagem))
         indices.append(i+1) # a imagem da posição i é o documento de nome i+1
     pares = list(zip(similaridades, indices)) # listas com os pares (similaridade indice_img)
-    pares_ranqueados = sorted(pares, key=lambda x: x[0], reverse=True)
+    pares_ranqueados = sorted(pares, key=lambda x: x[0], reverse=False)
 
-    # Ranqueia documentos
+    # Ranqueia imagens
     ranked_list = [doc_id for sim, doc_id in pares_ranqueados] # a lista possui os índices das imagens
 
     #print(ranked_list)

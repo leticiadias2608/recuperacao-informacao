@@ -16,7 +16,7 @@ def main():
     print(f"[INFO] Dispositivo: {device}")
     
     # 1. Escaneia dataset
-    entries, class_names = feature_extractor.scan_dataset("Corel-1K")
+    entries, class_names = feature_extractor.scan_dataset("./data/Corel-1K")
 
     print(f"[INFO] Dataset: {len(entries)} imagens, {len(class_names)} classes")
     print(f"       Classes: {class_names}")
@@ -41,7 +41,7 @@ def main():
     imgs_list = [] # lista de dicionários do tipo {"category": , "content": } 
 
     for query in queries_dict:
-        img_id = query["query_id"]
+        img_id = int(query["query_id"])
         # Dicionário da query com apenas categoria e id do documento
         img = {
             "category": query["category"],

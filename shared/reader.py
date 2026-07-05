@@ -1,5 +1,7 @@
 ###------------RESPONSÁVEL POR LER ARQUIVOS E DADOS SALVOS------------###
 
+import numpy as np
+
 ### LEITURA DO ARQUIVO (DATASET) ###
 def read_dataset_file():
     dataset_path = "data/bbc-news-data.csv" # caminho para o dataset
@@ -98,22 +100,26 @@ def read_rankeds_file_2(dataset_path):
     return ranked_lists
 
 def read_features_file():
-    dataset_path = "../data/features/features.txt"
+    dataset_path = "./data/features/features.txt"
     with open(dataset_path, 'r', encoding='utf-8') as arquivo:
         linhas = arquivo.readlines()
 
     features_list = []
     for linha in linhas:
-        features = linha.strip().split(' ')
-        features_list.append(features)
-    
-    print(features_list)
+        # 1. Divide a string em uma lista de strings individuais
+        partes = linha.split()
+        
+        # 2. Converte a lista de strings para um array NumPy de floats
+        vetor_numerico = np.array(partes, dtype=np.float32)
+        
+        # 3. Adiciona o vetor convertido à nossa lista final
+        features_list.append(vetor_numerico)
 
     return features_list
 
 
 def read_metadata():
-    dataset_path = "../data/features/metadata.txt"
+    dataset_path = "./data/features/metadata.txt"
 
     with open(dataset_path, 'r', encoding='utf-8') as arquivo:
         linhas = arquivo.readlines()
