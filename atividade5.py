@@ -51,7 +51,7 @@ def main():
     resultados_residuais = []
 
     nome_arquivo = f"./results/atv_5/resultados_originais_TF-IDF.txt"  
-    ranked_lists_originais =  reader.read_rankeds_file(nome_arquivo)
+    ranked_lists_originais =  reader.read_ranked_file(nome_arquivo)
     metricas = evaluation.evaluate_2(queries_dict, ranked_lists_originais, lista_documentos)
     metricas["Iteracao"] = "original"
     resultados.append(metricas)  

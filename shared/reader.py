@@ -45,27 +45,27 @@ def read_queries_file(dataset_path):
     
 
 ### LEITURA DAS RANKED LISTS ###
-def read_rankeds_file(dataset_path):
+def read_ranked_file(dataset_path):
 
     with open(dataset_path, 'r', encoding='utf-8') as arquivo:
         linhas = arquivo.readlines()
         
-        ranked_lists = []
-        for linha in linhas:
-            palavras = linha.strip().split(' ')
+    ranked_lists = []
+    for linha in linhas:
+        palavras = linha.strip().split(' ')
 
-            if not palavras or palavras == ['']:
-                continue
-                
-            query_lida = palavras[0] # A primeira palavra (índice 0) é a query
-            ranking_lido = palavras[1:] # Da segunda palavra em diante (índice 1 até o final), são os documentos rankeados
+        if not palavras or palavras == ['']:
+            continue
             
-            # Remonta o dicionário e adiciona na lista
-            ranked_lists.append({
-                "query": query_lida,
-                "ranking": ranking_lido
-            })
-        return ranked_lists
+        query_lida = palavras[0] # A primeira palavra (índice 0) é a query
+        ranking_lido = palavras[1:] # Da segunda palavra em diante (índice 1 até o final), são os documentos rankeados
+        
+        # Remonta o dicionário e adiciona na lista
+        ranked_lists.append({
+            "query": query_lida,
+            "ranking": ranking_lido
+        })
+    return ranked_lists
     
 def read_rankeds_file_2(dataset_path):
     with open(dataset_path, 'r', encoding='utf-8') as arquivo:
@@ -96,3 +96,43 @@ def read_rankeds_file_2(dataset_path):
             })
 
     return ranked_lists
+
+def read_features_file():
+    dataset_path = "../data/features/features.txt"
+    with open(dataset_path, 'r', encoding='utf-8') as arquivo:
+        linhas = arquivo.readlines()
+
+    features_list = []
+    for linha in linhas:
+        features = linha.strip().split(' ')
+        features_list.append(features)
+    
+    print(features_list)
+
+    return features_list
+
+
+def read_metadata():
+    dataset_path = "../data/features/metadata.txt"
+
+    with open(dataset_path, 'r', encoding='utf-8') as arquivo:
+        linhas = arquivo.readlines()
+        
+    queries_dict = []
+    for linha in linhas:
+        palavras = linha.strip().split(' ')
+
+        if not palavras or palavras == ['']:
+            continue
+            
+        query = palavras[0] # A primeira palavra (índice 0) é a query
+        label = palavras[1] # A segunda palavra é o rótulo
+        classe = palavras[2] # A terceira palavra é a classe
+        
+        # Remonta o dicionário e adiciona na lista
+        queries_dict.append({
+            "query_id": query,
+            "label": label,
+            "category": classe
+        })
+    return queries_dict

@@ -165,3 +165,4 @@ def filter_seen_docs(ranked_lists_iter, docs_vistos):
             "ranking": ranking_filtrado
         })
     return filtered
+

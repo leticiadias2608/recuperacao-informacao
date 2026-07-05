@@ -5,7 +5,7 @@ from shared import utils
 
 ### SIMILARIDADE COSSENO ###
 def similaridade_cos(vet1, vet2):
-    prod_esc = np.dot(vet1, vet2) #produto escalar entre vet1 e vet2
+    prod_esc = np.dot(vet1, vet2) # produto escalar entre vet1 e vet2
     
     #cálculo das normas dos vetores
     norma_vet1 = np.linalg.norm(vet1)
@@ -16,6 +16,16 @@ def similaridade_cos(vet1, vet2):
 
     similaridade = prod_esc / (norma_vet1 * norma_vet2)
     #print(similaridade)
+    return similaridade
+
+
+### DISTÂNCIA EUCLIDIANA ###
+def distancia_euclidiana(vet1, vet2):
+    vetor_sub = np.subtract(vet1, vet2) 
+    vetor_sqr = np.square(vetor_sub)
+    sum = np.sum(vetor_sqr)
+    similaridade = np.sqrt(sum)
+    print("similaridade: ", similaridade)
     return similaridade
 
 ###------------FUNÇÕES DE RANQUEAMENTO------------###
@@ -35,6 +45,22 @@ def ranqueamento_cos(query, vetores_tf, N): # retorna os 30 primeiro documentos 
 
     #print(ranked_list)
     return ranked_list[:N] 
+
+def ranqueamento_euclid(query, features):
+    similaridades = [] # lista de similaridades
+    indices = []
+
+    for i, documento in enumerate(features):
+        similaridades.append(similaridade_cos(query, documento))
+        indices.append(i+1) # a imagem da posição i é o documento de nome i+1
+    pares = list(zip(similaridades, indices)) # listas com os pares (similaridade indice_img)
+    pares_ranqueados = sorted(pares, key=lambda x: x[0], reverse=True)
+
+    # Ranqueia documentos
+    ranked_list = [doc_id for sim, doc_id in pares_ranqueados] # a lista possui os índices das imagens
+
+    #print(ranked_list)
+    return ranked_list 
 
 
 ### ---------------------- ATIVIDADE 2 ------------------------ ###
