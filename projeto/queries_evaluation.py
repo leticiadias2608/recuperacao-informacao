@@ -191,3 +191,41 @@ if __name__ == "__main__":
     print("OK\n")
 
     print("Todos os testes passaram.")
+
+
+""" Função principal para gerar os ranks e calcular métricas """
+def avaliar_e_salvar(lista_queries, modelo_nome, dataset_nome, tipo_busca, matriz_embeddings, caminhos, gabarito, funcao_relevantes, func_busca, k=5):
+    """
+    Roda o ranqueamento para cada query individualmente, calcula as métricas 
+    e salva o resultado em um CSV separado.
+    """
+    resultados = []
+    
+    for q in lista_queries:
+        texto_query = q["texto"]
+        categoria = q["categoria_esperada"]
+
+        # 1. Obter ranqueamento do modelo para a query atual
+        caminhos_rankeados, scores = func_busca(texto_query, matriz_embeddings, caminhos, top_k=k)
+
+        # 2. Obter conjunto de imagens relevantes do gabarito
+        relevantes = funcao_relevantes(gabarito, categoria)
+
+        # 3. Calcular as métricas
+        p_at_k = precision_at_k(caminhos_rankeados, relevantes, k)
+        r_at_k = recall_at_k(caminhos_rankeados, relevantes, k)
+        ap = average_precision(caminhos_rankeados, relevantes)
+
+        resultados.append({
+            "texto_query": texto_query,
+            "categoria_esperada": categoria,
+            "precision_at_k": p_at_k,
+            "recall_at_k": r_at_k,
+            "average_precision": ap
+        })
+
+    # Salvar resultados consolidados
+    df_resultados = pd.DataFrame(resultados)
+    nome_arquivo = f"resultados_{modelo_nome}_{dataset_nome}_{tipo_busca}.csv"
+    df_resultados.to_csv(nome_arquivo, index=False)
+    print(f"Salvo: {nome_arquivo} ({len(lista_queries)} queries)")
