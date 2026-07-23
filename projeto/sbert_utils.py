@@ -18,7 +18,11 @@ def codificar_textos_sbert(lista_de_textos, batch_size=32):
     return embeddings # np.ndarray de shape (n_textos, 384)
 
 """ Gera o embedding da query, calcula similaridade de cosseno contra a matriz, retorna top-k caminhos de imagem ranqueados """
-def buscar_sbert(query, matriz_embeddings, lista_caminhos, top_k=10):
+def buscar_sbert(query, matriz_embeddings, lista_caminhos, top_k=None):
+
+    if top_k is None:
+        top_k = len(lista_caminhos)
+
 
     embedding_query = MODELO_SBERT.encode(
         [query],    # espera uma lista, mesmo que seja uma lista de um único elemento
@@ -28,10 +32,9 @@ def buscar_sbert(query, matriz_embeddings, lista_caminhos, top_k=10):
 
     similaridades = matriz_embeddings @ embedding_query
 
-    indices_ordenados = np.argsort(-similaridades)
-    top_indices = indices_ordenados[:top_k]
+    indices_ordenados = np.argsort(-similaridades)[:top_k]
 
-    caminhos_rankeados = [lista_caminhos[i] for i in top_indices]
-    scores_rankeados = similaridades[top_indices]
+    caminhos_rankeados = [lista_caminhos[i] for i in indices_ordenados]
+    scores_rankeados = similaridades[indices_ordenados]
 
     return caminhos_rankeados, scores_rankeados # list[str], np.ndarray

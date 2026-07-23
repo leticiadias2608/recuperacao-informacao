@@ -38,12 +38,15 @@ def codificar_imagens_clip(lista_de_caminhos, batch_size=32):
     return matriz_embeddings
 
 
-def buscar_clip(query, matriz_embeddings, lista_caminhos, top_k=5):
+def buscar_clip(query, matriz_embeddings, lista_caminhos, top_k=None):
     """
     Codifica a query em texto pelo encoder de texto do CLIP, calcula
     similaridade de cosseno contra a matriz de embeddings de imagem
     e retorna os top-k caminhos ranqueados.
     """
+    if top_k is None:
+        top_k = len(lista_caminhos)
+
     inputs = _clip_processor(text=[query], return_tensors="pt", padding=True).to(DEVICE)
 
     with torch.no_grad():
@@ -59,8 +62,10 @@ def buscar_clip(query, matriz_embeddings, lista_caminhos, top_k=5):
 
     indices_ordenados = np.argsort(-similaridades)[:top_k]
 
-    resultados = [(lista_caminhos[i], float(similaridades[i])) for i in indices_ordenados]
-    return resultados
+    caminhos_rankeados = [lista_caminhos[i] for i in indices_ordenados]
+    scores_rankeados = similaridades[indices_ordenados]
+ 
+    return caminhos_rankeados, scores_rankeados
 
 def main():
     pasta_amostra = 'dataset_amostra_500'

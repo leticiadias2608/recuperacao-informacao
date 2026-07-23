@@ -106,12 +106,9 @@ def average_precision(ranking, relevantes):
 # ==========================================
 # 3. AVALIAR UMA LISTA INTEIRA DE QUERIES
 # ==========================================
-def avaliar_queries(queries, funcao_busca, funcao_relevantes, gabarito, k=5):
+def avaliar_queries(queries, ranking, funcao_relevantes, gabarito, k=5):
     """
     queries: lista de dicts {"texto":..., "categoria_esperada":...}
-    funcao_busca: função (query_texto) -> lista de caminho_imagem ranqueada
-                  (será buscar_sbert ou buscar_clip, feitas pelos outros
-                  integrantes)
     funcao_relevantes: relevantes_fashion ou relevantes_flickr
     gabarito: gabarito_fashion ou gabarito_flickr (DataFrame)
     """
@@ -120,7 +117,6 @@ def avaliar_queries(queries, funcao_busca, funcao_relevantes, gabarito, k=5):
     for query in queries:
         categoria = query['categoria_esperada']
         relevantes = funcao_relevantes(gabarito, categoria)
-        ranking = funcao_busca(query['texto'])
 
         linhas_resultado.append({
             'texto': query['texto'],
