@@ -1,3 +1,5 @@
+import os
+
 import pandas as pd
 
 # ==========================================
@@ -26,9 +28,16 @@ def relevantes_flickr(gabarito_flickr, categoria):
     entre suas categorias (uma imagem pode ter várias, separadas por ';')."""
     relevantes = set()
     for _, linha in gabarito_flickr.iterrows():
-        lista_categorias = linha['categorias'].split(';')
+        val_categoria = linha['categorias']
+        
+        # Se for nulo/NaN ou vazio, pula para a próxima imagem
+        if pd.isna(val_categoria) or not val_categoria:
+            continue
+            
+        lista_categorias = str(val_categoria).split(';')
         if categoria in lista_categorias:
             relevantes.add(linha['caminho_imagem'])
+            
     return relevantes
 
 
@@ -192,6 +201,32 @@ if __name__ == "__main__":
 
     print("Todos os testes passaram.")
 
+# Funções auxiliares para salvar as ranked lists em .txt
+def salvar_ranking_imagens_txt(resultados_busca, caminho_arquivo):
+
+    """
+    resultados_busca: lista de dicts {"texto": str, "caminhos_rankeados": list[str]}
+    Salva um .txt no formato:
+    "texto da query": img1 img2 img3
+    """
+    with open(caminho_arquivo, "w", encoding="utf-8") as f:
+        for r in resultados_busca:
+            imagens_str = " ".join(r["caminhos_rankeados"])
+            f.write(f'"{r["texto"]}": {imagens_str}\n')
+
+def salvar_ranking_scores_txt(resultados_busca, caminho_arquivo):
+
+    """
+    resultados_busca: lista de dicts {"texto": str, "scores_rankeados": array-like[float]}
+    Salva um .txt no formato:
+    "texto da query": score1 score2 score3
+    """
+
+    with open(caminho_arquivo, "w", encoding="utf-8") as f:
+        for r in resultados_busca:
+            scores_str = " ".join(f"{float(s):.4f}" for s in r["scores_rankeados"])
+            f.write(f'"{r["texto"]}": {scores_str}\n')
+
 
 """ Função principal para gerar os ranks e calcular métricas """
 def avaliar_e_salvar(lista_queries, modelo_nome, dataset_nome, tipo_busca, matriz_embeddings, caminhos, gabarito, funcao_relevantes, func_busca, k=5):
@@ -199,33 +234,48 @@ def avaliar_e_salvar(lista_queries, modelo_nome, dataset_nome, tipo_busca, matri
     Roda o ranqueamento para cada query individualmente, calcula as métricas 
     e salva o resultado em um CSV separado.
     """
-    resultados = []
+    os.makedirs("results", exist_ok=True)
+    
+    resultados_metricas = []
+    resultados_busca = []
     
     for q in lista_queries:
         texto_query = q["texto"]
         categoria = q["categoria_esperada"]
 
         # 1. Obter ranqueamento do modelo para a query atual
-        caminhos_rankeados, scores = func_busca(texto_query, matriz_embeddings, caminhos, top_k=k)
+        caminhos_rankeados, scores = func_busca(texto_query, matriz_embeddings, caminhos, top_k=None)
 
         # 2. Obter conjunto de imagens relevantes do gabarito
         relevantes = funcao_relevantes(gabarito, categoria)
 
         # 3. Calcular as métricas
-        p_at_k = precision_at_k(caminhos_rankeados, relevantes, k)
-        r_at_k = recall_at_k(caminhos_rankeados, relevantes, k)
-        ap = average_precision(caminhos_rankeados, relevantes)
+        p_at_k = round(precision_at_k(caminhos_rankeados, relevantes, k), 4)
+        r_at_k = round(recall_at_k(caminhos_rankeados, relevantes, k), 4)
+        ap = round(average_precision(caminhos_rankeados, relevantes), 4)
 
-        resultados.append({
+        resultados_metricas.append({
             "texto_query": texto_query,
             "categoria_esperada": categoria,
             "precision_at_k": p_at_k,
             "recall_at_k": r_at_k,
             "average_precision": ap
         })
+        
+        resultados_busca.append({
+            "texto": texto_query,
+            "caminhos_rankeados": caminhos_rankeados,
+            "scores_rankeados": scores
+        })
 
-    # Salvar resultados consolidados
-    df_resultados = pd.DataFrame(resultados)
-    nome_arquivo = f"resultados_{modelo_nome}_{dataset_nome}_{tipo_busca}.csv"
-    df_resultados.to_csv(nome_arquivo, index=False)
-    print(f"Salvo: {nome_arquivo} ({len(lista_queries)} queries)")
+    # Salvar métricas consolidadas em CSV
+    df_resultados = pd.DataFrame(resultados_metricas)
+    nome_csv = f"resultados_{modelo_nome}_{dataset_nome}_{tipo_busca}.csv"
+    df_resultados.to_csv(os.path.join("results", nome_csv), index=False)
+
+    # Salvar as ranked lists (imagens e scores) em .txt
+    nome_txt_imagens = f"ranking_imagens_{modelo_nome}_{dataset_nome}_{tipo_busca}.txt"
+    nome_txt_scores = f"ranking_scores_{modelo_nome}_{dataset_nome}_{tipo_busca}.txt"
+    salvar_ranking_imagens_txt(resultados_busca, os.path.join("results", nome_txt_imagens))
+    salvar_ranking_scores_txt(resultados_busca, os.path.join("results", nome_txt_scores))
+    print(f"Salvo: {nome_csv}, {nome_txt_imagens}, {nome_txt_scores} ({len(lista_queries)} queries)")

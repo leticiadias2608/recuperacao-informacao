@@ -66,36 +66,3 @@ def buscar_clip(query, matriz_embeddings, lista_caminhos, top_k=None):
     scores_rankeados = similaridades[indices_ordenados]
  
     return caminhos_rankeados, scores_rankeados
-
-def main():
-    pasta_amostra = 'dataset_amostra_500'
-    pasta_fashion_base = os.path.join(pasta_amostra, 'fashion')
-    pasta_flickr_base = os.path.join(pasta_amostra, 'flickr')
-
-    df_fashion_final = pd.read_csv(os.path.join(pasta_fashion_base, 'fashion_processado.csv'))
-    caminhos_fashion = [
-        os.path.join(pasta_fashion_base, caminho_relativo)
-        for caminho_relativo in df_fashion_final['caminho_imagem']
-    ]
-
-    df_flickr_final = pd.read_csv(os.path.join(pasta_flickr_base, 'flickr_processado.csv'))
-    caminhos_flickr = [
-        os.path.join(pasta_flickr_base, caminho_relativo)
-        for caminho_relativo in df_flickr_final['caminho_imagem']
-    ]
-
-    # Fashion
-    clip_img_fashion = codificar_imagens_clip(caminhos_fashion)
-    np.save("clip_img_fashion.npy", clip_img_fashion)
-
-    # Flickr8k
-    clip_img_flickr = codificar_imagens_clip(caminhos_flickr)
-    np.save("clip_img_flickr.npy", clip_img_flickr)
-
-    # Busca de exemplo
-    resultados = buscar_clip("cachorro correndo na praia", clip_img_flickr, caminhos_flickr, top_k=5)
-    print(resultados)
-
-
-if __name__ == "__main__":
-    main()
