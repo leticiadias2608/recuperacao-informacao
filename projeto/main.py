@@ -9,12 +9,12 @@ from sbert_utils import codificar_textos_sbert, buscar_sbert
 from queries_evaluation import relevantes_fashion, relevantes_flickr, avaliar_e_salvar
 
 def main():
-    print("Carregando bases e gabaritos...")
+    print("Carregando bases e dados de gabarito...")
     df_fashion = pd.read_csv("dataset_amostra_500/fashion/fashion_processado.csv")
     df_flickr  = pd.read_csv("dataset_amostra_500/flickr/flickr_processado.csv")
     
-    gabarito_fashion = pd.read_csv("dataset_amostra_500/fashion/fashion_gabarito.csv")
-    gabarito_flickr = pd.read_csv("dataset_amostra_500/flickr/flickr_gabarito.csv")
+    dados_fashion = pd.read_csv("dataset_amostra_500/fashion/fashion_dados.csv")
+    dados_flickr = pd.read_csv("dataset_amostra_500/flickr/flickr_dados.csv")
 
     caminhos_fashion = df_fashion["caminho_imagem"].tolist()
     caminhos_flickr  = df_flickr["caminho_imagem"].tolist()
@@ -29,12 +29,25 @@ def main():
     with open("dataset_amostra_500/flickr/flickr_queries.json", "r", encoding="utf-8") as f:
         flickr_queries = json.load(f)
 
-    # Divisão utilizando os índices (pares=genéricas, ímpares=específicas)
-    generica_fashion = fashion_queries[0::2]
-    especifica_fashion = fashion_queries[1::2]
-
-    generica_flickr = flickr_queries[0::2]
-    especifica_flickr = flickr_queries[1::2]
+    # Divisão utilizando o tipo (genéricas e específicas)
+    generica_fashion = []
+    especifica_fashion = []
+    for q in fashion_queries:
+        if q['tipo'] == 'generica':
+            generica_fashion.append(q)
+        else:
+            especifica_fashion.append(q)
+ 
+    generica_flickr = []
+    especifica_flickr = []
+    for q in flickr_queries:
+        if q['tipo'] == 'generica':
+            generica_flickr.append(q)
+        else:
+            especifica_flickr.append(q)
+ 
+    print(f"Fashion: {len(generica_fashion)} genéricas, {len(especifica_fashion)} específicas")
+    print(f"Flickr: {len(generica_flickr)} genéricas, {len(especifica_flickr)} específicas")
 
     # ==========================================
     # 2. CARREGAMENTO OU GERAÇÃO DE EMBEDDINGS (S-BERT e CLIP)
@@ -81,18 +94,18 @@ def main():
     k_avaliacao = 5
 
     # --- S-BERT ---
-    avaliar_e_salvar(generica_fashion, "sbert", "fashion", "generica", sbert_fashion, caminhos_fashion, gabarito_fashion, relevantes_fashion, buscar_sbert, k=k_avaliacao)
-    avaliar_e_salvar(especifica_fashion, "sbert", "fashion", "especifica", sbert_fashion, caminhos_fashion, gabarito_fashion, relevantes_fashion, buscar_sbert, k=k_avaliacao)
+    avaliar_e_salvar(generica_fashion, "sbert", "fashion", "generica", sbert_fashion, caminhos_fashion, dados_fashion, relevantes_fashion, buscar_sbert, k=k_avaliacao)
+    avaliar_e_salvar(especifica_fashion, "sbert", "fashion", "especifica", sbert_fashion, caminhos_fashion, dados_fashion, relevantes_fashion, buscar_sbert, k=k_avaliacao)
     
-    avaliar_e_salvar(generica_flickr, "sbert", "flickr", "generica", sbert_flickr, caminhos_flickr, gabarito_flickr, relevantes_flickr, buscar_sbert, k=k_avaliacao)
-    avaliar_e_salvar(especifica_flickr, "sbert", "flickr", "especifica", sbert_flickr, caminhos_flickr, gabarito_flickr, relevantes_flickr, buscar_sbert, k=k_avaliacao)
+    avaliar_e_salvar(generica_flickr, "sbert", "flickr", "generica", sbert_flickr, caminhos_flickr, dados_flickr, relevantes_flickr, buscar_sbert, k=k_avaliacao)
+    avaliar_e_salvar(especifica_flickr, "sbert", "flickr", "especifica", sbert_flickr, caminhos_flickr, dados_flickr, relevantes_flickr, buscar_sbert, k=k_avaliacao)
 
     # --- CLIP ---
-    avaliar_e_salvar(generica_fashion, "clip", "fashion", "generica", clip_img_fashion, caminhos_fashion, gabarito_fashion, relevantes_fashion, buscar_clip, k=k_avaliacao)
-    avaliar_e_salvar(especifica_fashion, "clip", "fashion", "especifica", clip_img_fashion, caminhos_fashion, gabarito_fashion, relevantes_fashion, buscar_clip, k=k_avaliacao)
+    avaliar_e_salvar(generica_fashion, "clip", "fashion", "generica", clip_img_fashion, caminhos_fashion, dados_fashion, relevantes_fashion, buscar_clip, k=k_avaliacao)
+    avaliar_e_salvar(especifica_fashion, "clip", "fashion", "especifica", clip_img_fashion, caminhos_fashion, dados_fashion, relevantes_fashion, buscar_clip, k=k_avaliacao)
     
-    avaliar_e_salvar(generica_flickr, "clip", "flickr", "generica", clip_img_flickr, caminhos_flickr, gabarito_flickr, relevantes_flickr, buscar_clip, k=k_avaliacao)
-    avaliar_e_salvar(especifica_flickr, "clip", "flickr", "especifica", clip_img_flickr, caminhos_flickr, gabarito_flickr, relevantes_flickr, buscar_clip, k=k_avaliacao)
+    avaliar_e_salvar(generica_flickr, "clip", "flickr", "generica", clip_img_flickr, caminhos_flickr, dados_flickr, relevantes_flickr, buscar_clip, k=k_avaliacao)
+    avaliar_e_salvar(especifica_flickr, "clip", "flickr", "especifica", clip_img_flickr, caminhos_flickr, dados_flickr, relevantes_flickr, buscar_clip, k=k_avaliacao)
 
     print("\nProcesso finalizado! Todos os arquivos CSV de resultados foram gerados.")
 

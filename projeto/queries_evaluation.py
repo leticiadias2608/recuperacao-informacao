@@ -10,34 +10,63 @@ import pandas as pd
 # Flickr, só recebem um "ranking" (lista de caminhos de imagem, na
 # ordem devolvida pelo modelo) e um "conjunto de relevantes" (quais
 # caminhos de imagem são considerados corretos para aquela query).
-# Essas duas funções abaixo são a ponte entre o gabarito de cada
+# Essas duas funções abaixo são a ponte entre os dados de cada
 # dataset (que têm formatos diferentes) e essa interface comum.
 
-def relevantes_fashion(gabarito_fashion, categoria):
-    """Devolve o conjunto de caminho_imagem cuja categoria bate com a
-    categoria_esperada da query. Uma imagem = uma categoria no Fashion."""
+def relevantes_fashion(dados_fashion, query):
+    """Devolve o conjunto de caminho_imagem cujos dados batem com a categoria_esperada
+    e atributos_esperados da query. Uma imagem = uma categoria no Fashion."""
+    """dados_fashion: DataFrame com caminho_imagem, articleType, productDisplayName, 
+    baseColour, gender (vem de fashion_dados.csv)."""
     relevantes = set()
-    for _, linha in gabarito_fashion.iterrows():
-        if linha['categoria'] == categoria:
-            relevantes.add(linha['caminho_imagem'])
+ 
+    if query['tipo'] == 'generica':
+        for _, linha in dados_fashion.iterrows():
+            if linha['articleType'] == query['categoria_esperada']:
+                relevantes.add(linha['caminho_imagem'])
+    else:
+        for _, linha in dados_fashion.iterrows():
+            texto_produto = f"{linha['productDisplayName']} {linha['baseColour']} {linha['gender']}".lower()
+ 
+            bate_todos_atributos = True
+            for atributo in query['atributos_esperados']:
+                if atributo.lower() not in texto_produto:
+                    bate_todos_atributos = False
+                    break
+ 
+            if bate_todos_atributos:
+                relevantes.add(linha['caminho_imagem'])
+ 
     return relevantes
 
 
-def relevantes_flickr(gabarito_flickr, categoria):
-    """Devolve o conjunto de caminho_imagem que contém a categoria dada
-    entre suas categorias (uma imagem pode ter várias, separadas por ';')."""
+def relevantes_flickr(dados_flickr, query):
+    """Devolve o conjunto de caminho_imagem  cujos dados batem com a categoria_esperada
+    e atributos_esperados da query. Uma imagem pode ter várias categorias, separadas por ';'."""
+    """dados_flickr: DataFrame com caminho_imagem, legenda, categorias (vem de flickr_dados.csv)."""
     relevantes = set()
-    for _, linha in gabarito_flickr.iterrows():
-        val_categoria = linha['categorias']
-        
-        # Se for nulo/NaN ou vazio, pula para a próxima imagem
-        if pd.isna(val_categoria) or not val_categoria:
-            continue
-            
-        lista_categorias = str(val_categoria).split(';')
-        if categoria in lista_categorias:
-            relevantes.add(linha['caminho_imagem'])
-            
+ 
+    if query['tipo'] == 'generica':
+        for _, linha in dados_flickr.iterrows():
+            val_categoria = linha['categorias']
+            if pd.isna(val_categoria) or not val_categoria:
+                continue
+            lista_categorias = str(val_categoria).split(';')
+            if query['categoria_esperada'] in lista_categorias:
+                relevantes.add(linha['caminho_imagem'])
+    else:
+        for _, linha in dados_flickr.iterrows():
+            legenda = str(linha['legenda']).lower()
+ 
+            bate_todos_atributos = True
+            for atributo in query['atributos_esperados']:
+                if atributo.lower() not in legenda:
+                    bate_todos_atributos = False
+                    break
+ 
+            if bate_todos_atributos:
+                relevantes.add(linha['caminho_imagem'])
+ 
     return relevantes
 
 
@@ -63,10 +92,7 @@ def precision_at_k(ranking, relevantes, k):
 
     if len(top_k) == 0:
         return 0.0
-    # Dividimos pelo tamanho real do top_k (e não por k fixo), pois se o
-    # ranking tiver menos de k itens (não deveria acontecer aqui, já que
-    # os datasets têm 500 imagens, mas é uma proteção barata), dividir
-    # por k penalizaria a métrica por um motivo que não é culpa do modelo.
+    
     return relevantes_recuperados / len(top_k)
 
 
@@ -75,7 +101,7 @@ def recall_at_k(ranking, relevantes, k):
     o modelo conseguiu trazer dentro do top-k? Mede o quanto o modelo
     "não deixou passar" respostas corretas."""
     if len(relevantes) == 0:
-        return 0.0  # não deveria acontecer - a verificação de sanidade já garante isso
+        return 0.0  
 
     top_k = ranking[:k]
 
@@ -100,8 +126,7 @@ def average_precision(ranking, relevantes):
     for posicao, imagem in enumerate(ranking, start=1):
         if imagem in relevantes:
             relevantes_recuperados += 1
-            precisao_nesta_posicao = relevantes_recuperados / posicao
-            soma_precisoes += precisao_nesta_posicao
+            soma_precisoes += relevantes_recuperados / posicao
 
     if relevantes_recuperados == 0:
         return 0.0
@@ -115,21 +140,21 @@ def average_precision(ranking, relevantes):
 # ==========================================
 # 3. AVALIAR UMA LISTA INTEIRA DE QUERIES
 # ==========================================
-def avaliar_queries(queries, ranking, funcao_relevantes, gabarito, k=5):
+def avaliar_queries(queries, ranking, funcao_relevantes, dados, k=5):
     """
     queries: lista de dicts {"texto":..., "categoria_esperada":...}
     funcao_relevantes: relevantes_fashion ou relevantes_flickr
-    gabarito: gabarito_fashion ou gabarito_flickr (DataFrame)
+    dados: dados_fashion ou dados_flickr (DataFrame)
     """
     linhas_resultado = []
 
     for query in queries:
-        categoria = query['categoria_esperada']
-        relevantes = funcao_relevantes(gabarito, categoria)
+        relevantes = funcao_relevantes(dados, categoria)
 
         linhas_resultado.append({
             'texto': query['texto'],
-            'categoria_esperada': categoria,
+            'tipo': query['tipo'],
+            'categoria_esperada': query['categoria_esperada'],
             'precision_at_k': precision_at_k(ranking, relevantes, k),
             'recall_at_k': recall_at_k(ranking, relevantes, k),
             'average_precision': average_precision(ranking, relevantes),
@@ -146,59 +171,43 @@ def avaliar_queries(queries, ranking, funcao_relevantes, gabarito, k=5):
 # ==========================================
 if __name__ == "__main__":
 
-    print("=== Teste 1: ranking perfeito (todos relevantes primeiro) ===")
+    print("=== Teste 1: ranking perfeito ===")
     relevantes = {"img1.jpg", "img3.jpg"}
     ranking_perfeito = ["img1.jpg", "img3.jpg", "img2.jpg", "img4.jpg", "img5.jpg"]
-
-    p5 = precision_at_k(ranking_perfeito, relevantes, k=5)
-    r5 = recall_at_k(ranking_perfeito, relevantes, k=5)
-    ap = average_precision(ranking_perfeito, relevantes)
-    print(f"precision@5={p5}, recall@5={r5}, AP={ap}")
-    assert p5 == 2/5, "precision@5 deveria ser 2/5 (2 relevantes em 5 retornados)"
-    assert r5 == 1.0, "recall@5 deveria ser 1.0 (achou os 2 relevantes que existem)"
-    assert ap == 1.0, "AP deveria ser 1.0 (os 2 relevantes vieram nas 2 primeiras posições)"
+    assert precision_at_k(ranking_perfeito, relevantes, 5) == 2/5
+    assert recall_at_k(ranking_perfeito, relevantes, 5) == 1.0
+    assert average_precision(ranking_perfeito, relevantes) == 1.0
     print("OK\n")
-
+ 
     print("=== Teste 2: nenhum relevante recuperado ===")
     ranking_ruim = ["img2.jpg", "img4.jpg", "img5.jpg"]
-    p5 = precision_at_k(ranking_ruim, relevantes, k=5)
-    r5 = recall_at_k(ranking_ruim, relevantes, k=5)
-    ap = average_precision(ranking_ruim, relevantes)
-    print(f"precision@5={p5}, recall@5={r5}, AP={ap}")
-    assert p5 == 0.0 and r5 == 0.0 and ap == 0.0
+    assert precision_at_k(ranking_ruim, relevantes, 5) == 0.0
+    assert recall_at_k(ranking_ruim, relevantes, 5) == 0.0
+    assert average_precision(ranking_ruim, relevantes) == 0.0
     print("OK\n")
-
-    print("=== Teste 3: ranking misturado (calculado manualmente para conferir) ===")
-    # relevantes = {doc1, doc3}
-    # ranking =    [doc2, doc1, doc4, doc3, doc5]
-    # doc1 é relevante e está na posição 2 -> precisao ali = 1/2
-    # doc3 é relevante e está na posição 4 -> precisao ali = 2/4
-    # AP = (1/2 + 2/4) / 2 = 0.5
+ 
+    print("=== Teste 3: AP calculado na mão ===")
     relevantes_3 = {"doc1", "doc3"}
     ranking_3 = ["doc2", "doc1", "doc4", "doc3", "doc5"]
-    ap3 = average_precision(ranking_3, relevantes_3)
-    print(f"AP calculado = {ap3} | esperado manualmente = 0.5")
-    assert ap3 == 0.5
+    assert average_precision(ranking_3, relevantes_3) == 0.5
     print("OK\n")
-
-    print("=== Teste 4: com o gabarito REAL do Fashion, categoria 'Watches' ===")
-    gabarito_fashion = pd.read_csv('dataset_amostra_500/fashion/fashion_gabarito.csv')
-    relevantes_watches = relevantes_fashion(gabarito_fashion, "Watches")
-    print(f"Quantidade real de relógios na amostra: {len(relevantes_watches)}")
-
-    # Simula um ranking "perfeito": todos os relógios relevantes vêm
-    # primeiro, seguidos de imagens irrelevantes.
-    irrelevantes = list(gabarito_fashion[gabarito_fashion['categoria'] != 'Watches']['caminho_imagem'])[:10]
-    ranking_simulado = list(relevantes_watches) + irrelevantes
-
-    p5 = precision_at_k(ranking_simulado, relevantes_watches, k=5)
-    ap = average_precision(ranking_simulado, relevantes_watches)
-    print(f"precision@5={p5} (esperado 1.0, já que os 5 primeiros são todos relógios)")
-    print(f"AP={ap} (esperado 1.0, ranking perfeito)")
-    assert p5 == 1.0
-    assert ap == 1.0
+ 
+    print("=== Teste 4: relevantes_fashion GENÉRICA com dados reais (Watches) ===")
+    dados_fashion = pd.read_csv('dataset_amostra_500/fashion/fashion_dados.csv')
+    query_generica = {"tipo": "generica", "categoria_esperada": "Watches", "atributos_esperados": []}
+    rel = relevantes_fashion(dados_fashion, query_generica)
+    print(f"Relógios encontrados: {len(rel)} (esperado 27)")
+    assert len(rel) == 27
     print("OK\n")
-
+ 
+    print("=== Teste 5: relevantes_fashion ESPECÍFICA - falso positivo corrigido? ===")
+    query_especifica = {"tipo": "especifica", "categoria_esperada": "Tshirts",
+                         "atributos_esperados": ["Nike", "Grey", "Striped"]}
+    rel_especifica = relevantes_fashion(dados_fashion, query_especifica)
+    print(f"Produtos Nike+Grey+Striped: {len(rel_especifica)} (esperado 1)")
+    assert len(rel_especifica) == 1
+    print("OK\n")
+ 
     print("Todos os testes passaram.")
 
 # Funções auxiliares para salvar as ranked lists em .txt
@@ -229,7 +238,7 @@ def salvar_ranking_scores_txt(resultados_busca, caminho_arquivo):
 
 
 """ Função principal para gerar os ranks e calcular métricas """
-def avaliar_e_salvar(lista_queries, modelo_nome, dataset_nome, tipo_busca, matriz_embeddings, caminhos, gabarito, funcao_relevantes, func_busca, k=5):
+def avaliar_e_salvar(lista_queries, modelo_nome, dataset_nome, tipo_busca, matriz_embeddings, caminhos, dados, funcao_relevantes, func_busca, k=5):
     """
     Roda o ranqueamento para cada query individualmente, calcula as métricas 
     e salva o resultado em um CSV separado.
@@ -246,8 +255,8 @@ def avaliar_e_salvar(lista_queries, modelo_nome, dataset_nome, tipo_busca, matri
         # 1. Obter ranqueamento do modelo para a query atual
         caminhos_rankeados, scores = func_busca(texto_query, matriz_embeddings, caminhos, top_k=None)
 
-        # 2. Obter conjunto de imagens relevantes do gabarito
-        relevantes = funcao_relevantes(gabarito, categoria)
+        # 2. Obter conjunto de imagens relevantes do dados
+        relevantes = funcao_relevantes(dados, categoria)
 
         # 3. Calcular as métricas
         p_at_k = round(precision_at_k(caminhos_rankeados, relevantes, k), 4)
