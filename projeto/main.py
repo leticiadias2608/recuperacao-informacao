@@ -10,23 +10,44 @@ from queries_evaluation import relevantes_fashion, relevantes_flickr, avaliar_e_
 
 def main():
     print("Carregando bases e dados de gabarito...")
-    df_fashion = pd.read_csv("dataset_amostra_500/fashion/fashion_processado.csv")
-    df_flickr  = pd.read_csv("dataset_amostra_500/flickr/flickr_processado.csv")
-    
-    dados_fashion = pd.read_csv("dataset_amostra_500/fashion/fashion_dados.csv")
-    dados_flickr = pd.read_csv("dataset_amostra_500/flickr/flickr_dados.csv")
+    pasta_amostra = "dataset_amostra_500"
+    pasta_fashion_base = os.path.join(pasta_amostra, "fashion")
+    pasta_flickr_base = os.path.join(pasta_amostra, "flickr")
 
-    caminhos_fashion = df_fashion["caminho_imagem"].tolist()
-    caminhos_flickr  = df_flickr["caminho_imagem"].tolist()
+    df_fashion = pd.read_csv(os.path.join(pasta_fashion_base, "fashion_processado.csv"))
+    df_flickr  = pd.read_csv(os.path.join(pasta_flickr_base, "flickr_processado.csv"))
+
+    dados_fashion = pd.read_csv(os.path.join(pasta_fashion_base, "fashion_dados.csv"))
+    dados_flickr = pd.read_csv(os.path.join(pasta_flickr_base, "flickr_dados.csv"))
+
+    # Deixa caminho_imagem em dados_fashion/dados_flickr no mesmo formato
+    # (com o prefixo da pasta) usado em caminhos_fashion/caminhos_flickr,
+    # senão relevantes_fashion/relevantes_flickr nunca batem com o ranking
+    # devolvido por buscar_sbert/buscar_clip.
+    dados_fashion["caminho_imagem"] = dados_fashion["caminho_imagem"].apply(
+        lambda c: os.path.join(pasta_fashion_base, c)
+    )
+    dados_flickr["caminho_imagem"] = dados_flickr["caminho_imagem"].apply(
+        lambda c: os.path.join(pasta_flickr_base, c)
+    )
+
+    caminhos_fashion = [
+        os.path.join(pasta_fashion_base, caminho_relativo)
+        for caminho_relativo in df_fashion["caminho_imagem"]
+    ]
+    caminhos_flickr = [
+        os.path.join(pasta_flickr_base, caminho_relativo)
+        for caminho_relativo in df_flickr["caminho_imagem"]
+    ]
 
     # ==========================================
     # 1. LEITURA E SEPARAÇÃO DAS QUERIES
     # ==========================================
     print("\nCarregando queries e separando listas...")
-    with open("dataset_amostra_500/fashion/fashion_queries.json", "r", encoding="utf-8") as f:
+    with open(os.path.join(pasta_fashion_base, "fashion_queries.json"), "r", encoding="utf-8") as f:
         fashion_queries = json.load(f)
-        
-    with open("dataset_amostra_500/flickr/flickr_queries.json", "r", encoding="utf-8") as f:
+
+    with open(os.path.join(pasta_flickr_base, "flickr_queries.json"), "r", encoding="utf-8") as f:
         flickr_queries = json.load(f)
 
     # Divisão utilizando o tipo (genéricas e específicas)

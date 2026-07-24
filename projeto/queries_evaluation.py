@@ -149,7 +149,7 @@ def avaliar_queries(queries, ranking, funcao_relevantes, dados, k=5):
     linhas_resultado = []
 
     for query in queries:
-        relevantes = funcao_relevantes(dados, categoria)
+        relevantes = funcao_relevantes(dados, query)
 
         linhas_resultado.append({
             'texto': query['texto'],
@@ -220,7 +220,7 @@ def salvar_ranking_imagens_txt(resultados_busca, caminho_arquivo):
     """
     with open(caminho_arquivo, "w", encoding="utf-8") as f:
         for r in resultados_busca:
-            imagens_str = " ".join(r["caminhos_rankeados"])
+            imagens_str = " ".join(os.path.basename(c) for c in r["caminhos_rankeados"])
             f.write(f'"{r["texto"]}": {imagens_str}\n')
 
 def salvar_ranking_scores_txt(resultados_busca, caminho_arquivo):
@@ -256,7 +256,7 @@ def avaliar_e_salvar(lista_queries, modelo_nome, dataset_nome, tipo_busca, matri
         caminhos_rankeados, scores = func_busca(texto_query, matriz_embeddings, caminhos, top_k=None)
 
         # 2. Obter conjunto de imagens relevantes do dados
-        relevantes = funcao_relevantes(dados, categoria)
+        relevantes = funcao_relevantes(dados, q)
 
         # 3. Calcular as métricas
         p_at_k = round(precision_at_k(caminhos_rankeados, relevantes, k), 4)
