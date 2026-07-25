@@ -183,13 +183,13 @@ REGRAS_CATEGORIA_FLICKR = {
     'dog': r'\bdog[s]?\b', # dog | dogs
     'snow': r'\bsnow\b', # snow
     'water_beach': r'\b(beach|ocean|lake|pool|swim(s|ming)?|water)\b', # beach | ocean | lake | pool | swim | swims | swimming | water
-    'child': r'\b(child|children|kid|boy|girl|baby)\b', # child | children | kid | boy | girl | baby
+    'child': r'\b(child|children|kid|boys?|girls?|baby)\b', # child | children | kid | boy | boys | girl | girls | baby
     'man': r'\b(man|men)\b', # man | men
     'woman': r'\b(woman|women)\b', # woman | women
     'bicycle': r'\b(?:bik(?:e|es|er|ers|ing)|bicycle[s]?)\b', # bike | bikes | biker | bikers | biking | bicycle | bicycles
     'running': r'\brun(s|ning)?\b', # run | runs | running
-    'mountain_rock': r'\b(mountain|rock|cliff)\b', # mountain | rock | cliff
-    'ball_sport': r'\b(ball|soccer|football|basketball)\b', # ball | soccer | football | basketball
+    'mountain_rock': r'\b(mountains?|rocks?|cliffs?)\b', # mountain | rock | rocks | cliff | cliffs
+    'ball_sport': r'\b(balls?|soccer|football|basketball)\b', # ball | balls | soccer | football | basketball
     'group_people': r'\b(group|people|crowd)\b', # group | people | crowd
     'grass_field': r'\b(grass|field|park)\b', # grass | field | park
     'jumping': r'\bjump(s|ing)?\b', # jump | jumps | jumping
